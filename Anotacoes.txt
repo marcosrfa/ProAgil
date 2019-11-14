@@ -1,3 +1,7 @@
 ENtity Framework
 dotnet ef migrations add NOME_DA_MIGRATION -> cria o esquema de banco de dados no Código
 dotnet ef database update -> Cria o arquivo de banco e dados
+
+Adicionar campo no objeto evento
+DROP na base: dotnet ef database drop
+DROP na Migration:  dotnet ef migrations remove
