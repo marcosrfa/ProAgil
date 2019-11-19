@@ -5,3 +5,16 @@ dotnet ef database update -> Cria o arquivo de banco e dados
 Adicionar campo no objeto evento
 DROP na base: dotnet ef database drop
 DROP na Migration:  dotnet ef migrations remove
+
+{ [DECORATOR] }
+
+*ng -> Diretivas estruturais do angular
+{{ [Bind com interpolação] }}
+
+Two Way DataBind é [()] => Caixa de Bananas
+
+filtro por meio de pipe "|"
+
+Toda vez que declara uma variável dentro de uma [(ngModel)], eu consigo reutilizar esse valor
+
+GET / SET -> Encapsulamento
