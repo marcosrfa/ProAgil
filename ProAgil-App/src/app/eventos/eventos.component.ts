@@ -2,6 +2,7 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { Evento } from '../_models/Evento';
 import { EventoService } from '../_services/evento.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-eventos',
@@ -16,6 +17,7 @@ export class EventosComponent implements OnInit {
   imagemMargem = 2;
   mostrarImagem = false;
   modalRef: BsModalRef;
+  registerForm: FormGroup;
 
   // Propriedade
   _filtroLista = '';
@@ -23,6 +25,7 @@ export class EventosComponent implements OnInit {
   constructor(
     private eventoService: EventoService
     , private modalService: BsModalService
+    , private fb: FormBuilder
   ) {}
 
   get filtroLista(): string {
@@ -39,7 +42,24 @@ export class EventosComponent implements OnInit {
     this.modalRef = this.modalService.show(template);
   }
 
+  salvarAlteracoes() {
+
+  }
+
+  validation() {
+    this.registerForm = this.fb.group({
+      tema: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(4)]],
+      local: ['', Validators.required],
+      dataEvento: ['', Validators.required],
+      qtdPessoas: ['', [Validators.required, Validators.max(12000)]],
+      imagemURL: ['', Validators.required],
+      telefone: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
   ngOnInit() {
+    this.validation();
     this.getEventos();
   }
 
