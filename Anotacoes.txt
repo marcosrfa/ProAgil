@@ -19,4 +19,4 @@ Toda vez que declara uma variável dentro de uma [(ngModel)], eu consigo reutili
 
 GET / SET -> Encapsulamento
 
-19/11 -> parei no video 50
+Observable comparado ao Promisses é LAZY, enquanto o Promisses é EGGER. 
