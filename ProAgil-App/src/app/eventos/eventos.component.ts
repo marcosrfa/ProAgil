@@ -1,32 +1,36 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { Evento } from '../_models/Evento';
-import { EventoService } from '../_services/evento.service';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap';
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { Component, OnInit, TemplateRef } from "@angular/core";
+import { Evento } from "../_models/Evento";
+import { EventoService } from "../_services/evento.service";
+import { FormGroup, Validators, FormBuilder } from "@angular/forms";
+import { defineLocale, BsLocaleService, ptBrLocale } from "ngx-bootstrap";
+defineLocale("pt-br", ptBrLocale);
 
 @Component({
-  selector: 'app-eventos',
-  templateUrl: './eventos.component.html',
-  styleUrls: ['./eventos.component.css']
+  selector: "app-eventos",
+  templateUrl: "./eventos.component.html",
+  styleUrls: ["./eventos.component.css"]
 })
 export class EventosComponent implements OnInit {
   // Propriedades Primárias
   eventosFiltrados: Evento[];
   eventos: Evento[];
+  evento: Evento;
   imagemLargura = 50;
   imagemMargem = 2;
   mostrarImagem = false;
-  modalRef: BsModalRef;
   registerForm: FormGroup;
+  isNew = true;
 
   // Propriedade
-  _filtroLista = '';
+  _filtroLista = "";
 
   constructor(
-    private eventoService: EventoService
-    , private modalService: BsModalService
-    , private fb: FormBuilder
-  ) {}
+    private eventoService: EventoService,
+    private fb: FormBuilder,
+    private localeService: BsLocaleService
+  ) {
+    this.localeService.use("pt-br");
+  }
 
   get filtroLista(): string {
     return this._filtroLista;
@@ -38,23 +42,66 @@ export class EventosComponent implements OnInit {
       : this.eventos;
   }
 
-  openModal(template: TemplateRef<any>) {
-    this.modalRef = this.modalService.show(template);
+  editarEvento(evento: Evento, template: any) {
+    this.openModal(template);
+    this.isNew = false;
+    this.evento = evento;
+    this.registerForm.patchValue(evento);
   }
 
-  salvarAlteracoes() {
+  novoEvento(template: any) {
+    this.openModal(template);
+    this.isNew = true;
+  }
 
+  openModal(template: any) {
+    this.registerForm.reset();
+    template.show();
+  }
+
+  salvarAlteracao(template: any) {
+    if (this.registerForm.valid) {
+      if (this.isNew) {
+        this.evento = Object.assign({}, this.registerForm.value);
+        this.eventoService.postEvento(this.evento).subscribe(
+          (novoEvento: Evento) => {
+            template.hide();
+            this.getEventos();
+          },
+          er => {
+            console.log(er);
+          }
+        );
+      } else {
+        this.evento = Object.assign(
+          { id: this.evento.id },
+          this.registerForm.value
+        );
+        this.eventoService.putEvento(this.evento).subscribe(
+          (eventoEditado: Evento) => {
+            template.hide();
+            this.getEventos();
+          },
+          er => {
+            console.log(er);
+          }
+        );
+      }
+    }
   }
 
   validation() {
     this.registerForm = this.fb.group({
-      tema: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(4)]],
-      local: ['', Validators.required],
-      dataEvento: ['', Validators.required],
-      qtdPessoas: ['', [Validators.required, Validators.max(12000)]],
-      imagemURL: ['', Validators.required],
-      telefone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      tema: [
+        "",
+        [Validators.required, Validators.maxLength(50), Validators.minLength(4)]
+      ],
+      local: ["", Validators.required],
+      dataEvento: ["", Validators.required],
+      qtdPessoas: ["", [Validators.required, Validators.max(12000)]],
+      imagemURL: ["", Validators.required],
+      telefone: ["", Validators.required],
+      email: ["", [Validators.required, Validators.email]]
     });
   }
 
@@ -75,15 +122,13 @@ export class EventosComponent implements OnInit {
   }
 
   getEventos() {
-    this.eventoService
-      .getAllEventos()
-      .subscribe(
-        (_eventos: Evento[]) => {
-          console.log(_eventos);
-          this.eventos = _eventos;
-          this.eventosFiltrados = this.eventos;
-        },
-        error => console.log(error)
-      );
+    this.eventoService.getAllEventos().subscribe(
+      (_eventos: Evento[]) => {
+        console.log(_eventos);
+        this.eventos = _eventos;
+        this.eventosFiltrados = this.eventos;
+      },
+      error => console.log(error)
+    );
   }
 }
