@@ -20,6 +20,7 @@ export class EventosComponent implements OnInit {
   mostrarImagem = false;
   registerForm: FormGroup;
   isNew = true;
+  bodyDeleteEvento = "";
 
   // Propriedade
   _filtroLista = "";
@@ -52,6 +53,24 @@ export class EventosComponent implements OnInit {
   novoEvento(template: any) {
     this.openModal(template);
     this.isNew = true;
+  }
+
+  excluirEvento(evento: Evento, template: any) {
+    this.openModal(template);
+    this.evento = evento;
+    this.bodyDeleteEvento = `Tem certeza que deseja excluir o evento ${evento.tema} ?`;
+  }
+
+  confirmarDelete(template: any) {
+    this.eventoService.deleteEvento(this.evento.id).subscribe(
+      () => {
+        template.hide();
+        this.getEventos();
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   openModal(template: any) {
