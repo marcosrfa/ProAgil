@@ -1,6 +1,5 @@
+<app-titulo [titulo]="titulo"></app-titulo>
 <div class="d-flex">
-
-
   <div class="form-inline mr-auto">
     <div class="form-group mb-2">
       <label class="mr-2">Filtro:</label> <input type="text" class="form-control mr-2" placeholder="Buscar"
@@ -40,7 +39,7 @@
       <td>{{evento.id}}</td>
       <td>{{evento.tema}}</td>
       <td>{{evento.local}}</td>
-      <td>{{evento.dataEvento | DateTimeFormat}}</td>
+      <td>{{evento.dataEvento}}</td>
       <td>{{evento.qtdPessoas}}</td>
       <td>
         <div *ngIf="!evento.lotes.length">Não Informado</div>
@@ -115,7 +114,9 @@
             <div class="form-group col-md-4">
               <label>Data e Hora</label>
               <input type="text" class="form-control" bsDatepicker formControlName="dataEvento"
-                [bsConfig]="{ dateInputFormat : 'DD/MM/YYYY hh:mm a'}"
+              value="{{dataEvento}}"
+              [(ngModel)] = "dataEvento"  
+              [bsConfig]="{ dateInputFormat : 'DD/MM/YYYY hh:mm a'}"
                 [ngClass]="{'is-invalid': registerForm.get('dataEvento').errors && registerForm.get('dataEvento').touched}">
               <div *ngIf="registerForm.get('dataEvento').invalid && registerForm.get('dataEvento').touched"
                 class="invalid-feedback">
