@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProAgil.Domain;
 using ProAgil.Repository;
+using ProAgil.WebAPI.DTOS;
 
 namespace ProAgil.WebAPI.Controllers
 {
@@ -11,9 +14,12 @@ namespace ProAgil.WebAPI.Controllers
     public class EventoController : ControllerBase
     {
         public IProAgilRepository _repo { get; }
-        public EventoController(IProAgilRepository repo)
+        public IMapper _mapper { get; }
+
+        public EventoController(IProAgilRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         // GET api/values
@@ -22,12 +28,15 @@ namespace ProAgil.WebAPI.Controllers
         {
             try
             {
-                var result = await _repo.GetAllEventosAsync(true);
-                return Ok(result);
+                var eventos = await _repo.GetAllEventosAsync(true);
+
+                var results = _mapper.Map<EventoDTO[]>(eventos);
+
+                return Ok(results);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou!!!!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Banco de dados falhou!!!! Erro: {ex.Message}");
             }
             
         }
@@ -37,12 +46,14 @@ namespace ProAgil.WebAPI.Controllers
         {
             try
             {
-                var result = await _repo.GetEventoById(eventoId, true);
+                var evento = await _repo.GetEventoById(eventoId, true);
+
+                var result = _mapper.Map<EventoDTO>(evento);
                 return  Ok(result);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou!!!!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Banco de dados falhou!!!! Erro: {ex.Message}");
             }
             
         }
@@ -63,37 +74,41 @@ namespace ProAgil.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Evento model)
+        public async Task<IActionResult> Post(EventoDTO model)
         {
             try
             {
-                _repo.Add(model);
+                var evento = _mapper.Map<Evento>(model);
+
+                _repo.Add(evento);
+
                 if(await _repo.SaveChangesAsync()){
-                    return  Created($"/api/evento/{model.Id}", model);
+                    return  Created($"/api/evento/{model.Id}",  _mapper.Map<EventoDTO>(evento));
                 }
                 
                 return BadRequest();
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou!!!!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Banco de dados falhou!!!! Erro: {ex.Message}");
             }
             
         }
 
         [HttpPut("{eventoId}")]
-        public async Task<IActionResult> Put(int eventoId, Evento model)
+        public async Task<IActionResult> Put(int eventoId, EventoDTO model)
         {
             try
             {
-                //var evento = await _repo.GetEventoById(eventoId, false);
                 var evento = await _repo.GetEventoById(eventoId, false);
-
                 if(evento == null) return NotFound();
 
-                _repo.Update(model);
+                _mapper.Map(model, evento);
+
+                _repo.Update(evento);
+
                 if(await _repo.SaveChangesAsync()){
-                    return  Created($"/api/evento/{model.Id}", model);
+                    return  Created($"/api/evento/{model.Id}", _mapper.Map<EventoDTO>(evento));
                 }
                 
                 return BadRequest();

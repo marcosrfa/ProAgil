@@ -36,7 +36,7 @@ namespace ProAgil.Repository {
                     .Include(pe => pe.PalestranteEventos)
                     .ThenInclude(p => p.Palestrante);
 
-            query.OrderByDescending(e => e.DataEvento);
+            query.OrderBy(e => e.Id);
 
             return await query.ToArrayAsync();
         }
